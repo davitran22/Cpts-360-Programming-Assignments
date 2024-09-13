@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include "functions.h"
 
-/* NOTE: this file replaces pa0_base which has given starter code. As there are issues with "pa0_base.c"*/
-
-
+/********************************************************************************************************************/
+/******  NOTE: this file replaces pa0_base which has given starter code.As there are issues with "pa0_base.c"********/
 
 // variables
 char user_choosen_command[50];
@@ -16,7 +15,6 @@ char command = '\0';
 
 int main(void)
 {
-	//initialize();
 
 	printf("Welcome to Unix filesystem simualation!\n");
 	printf("1. the program will prompt for command\n");
@@ -54,7 +52,7 @@ int main(void)
 		{
 			// get user input
 			// execute command
-			printf("HELLOOO\n");
+			printf("Enter path name\n");
 			scanf("%s", pathname);
 			rmdir(pathname);
 		}
@@ -131,44 +129,11 @@ int main(void)
 
 	}
 	
+	printf("\n");
+
 	// create the filesystem
 	initialize();
 
 	
 	return 0;
 }
-
-
-
-//// get command from user
-//printf("Enter command: ");
-//scanf("%c", user_command);
-//
-//// command can be in the from of "command pathname"
-//// extract command
-//// split the string based on spaces
-//tokenize = strtok(user_command, " ");
-//
-//// grab the first token which is the command
-//// if the token exists
-//if (tokenize != NULL) // iterate through each token
-//{
-//	// get the command
-//	user_choosen_command = tokenize;
-//}
-//
-//// grab the second token which is the path name
-//// if the token exists
-//if (tokenize != NULL) // iterate through each token
-//{
-//	// get the command
-//	pathname = tokenize;
-//}
-//
-//
-//// find_command() returns a int which is the index
-//// get index of the command within the array
-//index = find_commad(user_choosen_command);
-//
-//// get the command from the array
-//user_choosen_command = cmd[index];

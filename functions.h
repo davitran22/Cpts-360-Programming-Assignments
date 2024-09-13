@@ -31,7 +31,7 @@ char* cmd[] = { "mkdir", "rmdir", "ls", "cd", "pwd", "creat", "rm",
 
 /*
 * Function: initialize
-* Description: this function is used to initialize our file system
+* Description: this function is used to initialize our file system. Provided by instructor
 * Parameters: none
 */
 int initialize() {
@@ -52,7 +52,7 @@ int initialize() {
 
 /*
 * Function: find_commad
-* Description: used to find the location of the command that user has entered
+* Description: used to find the location of the command that user has entered. Provided by instructor
 * Parameters:
 *	user_command - string
 */
@@ -129,33 +129,6 @@ void mkdir(char path_name[20])
 		}
 
 
-
-
-	}
-	else // the first index of path name does not contain / . So it is relative path
-	{
-		// RELATIVE
-
-		// iterate path name to grab dire name
-		while (slash_count_dire_name < 0 && strchr(delimeter + 1, '/'))
-		{
-			slash_count_dire_name++;
-		}
-
-		
-
-		if (slash_count_dire_name != 0)
-		{
-			direname_relative = slash_count_dire_name;
-		}
-
-	}
-
-
-	/* 2. Search for the direname node */
-
-	if (path_name[0] == '/')
-	{
 		// ABS path
 
 		// traverse the tree and through each node
@@ -200,9 +173,10 @@ void mkdir(char path_name[20])
 
 		}
 
-
+		// traverse the sibling node
 		if (strcmp(root->parent->sibling, direname) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// dire name is a DIR type
@@ -222,25 +196,29 @@ void mkdir(char path_name[20])
 				}
 				else
 				{
+					// names match meaning unable to create a directory
 					printf("DIR %s already exists!", path_name);
 				}
 
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
+		// traverse child node
 		if (strcmp(root->parent->sibling->child, direname) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// dire name is a DIR type
 				if (strcmp(basename, root->sibling->name))
 				{
-					
+
 
 					// create a DIR node under dire name
 					// allocate memory for new node
@@ -254,18 +232,39 @@ void mkdir(char path_name[20])
 
 				}
 
+
+
+
 			}
-			else
+
+			else // the first index of path name does not contain / . So it is relative path
 			{
-				printf("DIR %s already exists!", path_name);
-				return path_name;
+				// RELATIVE
+
+				// iterate path name to grab dire name
+				while (slash_count_dire_name < 0 && strchr(delimeter + 1, '/'))
+				{
+					slash_count_dire_name++;
+				}
+
+
+				// grab the dire name of relative path
+				if (slash_count_dire_name != 0)
+				{
+					direname_relative = slash_count_dire_name;
+				}
+
 			}
+
+
+
+			
 		}
 
 
 
 	}
-	else
+	else if(path_name[0] != '/') // check if beginning of path name contains a /
 	{
 		// Relative path
 		// start from the CWD and check if the dire name already exists
@@ -273,17 +272,28 @@ void mkdir(char path_name[20])
 		{
 			if (root->type) // if it is DIR type
 			{
-				// add new node
+				// create a DIR node under dire name
+				// allocate memory for new node
+				NODE* new_DIR_node = (NODE*)malloc(sizeof(NODE));
+				new_DIR_node->type = 'D'; // set the type to a DIR
+				strcpy(new_DIR_node->name, direname); // set the new name of the Directory
+
+				// the new created will be the child node of the parent node
+				root->child = new_DIR_node; // set the new node created as child node
+				root->parent = new_DIR_node; // set the new node that is a child node as parent node
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
+		// traverse the parent node
 		if (strcmp(cwd->parent, direname_relative) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 
@@ -299,13 +309,16 @@ void mkdir(char path_name[20])
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
+		// traverse the child node
 		if (strcmp(cwd->parent->child, direname_relative) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// create a DIR node under dire name
@@ -321,13 +334,16 @@ void mkdir(char path_name[20])
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
+		// traverse the sibiling node
 		if (strcmp(cwd->parent->child->sibling, direname_relative) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// create a DIR node under dire name
@@ -342,12 +358,25 @@ void mkdir(char path_name[20])
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
 		
+	}
+	else if (path_name = '\0') // it just a simple path 
+	{
+		// create a DIR node under dire name
+		// allocate memory for new node
+		NODE* new_DIR_node = (NODE*)malloc(sizeof(NODE));
+		new_DIR_node->type = 'D'; // set the type to a DIR
+		strcpy(new_DIR_node->name, direname); // set the new name of the Directory
+
+		// the new created will be the child node of the parent node
+		root->child = new_DIR_node; // set the new node created as child node
+		root->parent = new_DIR_node; // set the new node that is a child node as parent node
 	}
 
 
@@ -369,7 +398,7 @@ void rmdir(char path_name[20])
 	int slash_count_dire_name1 = '\0';
 	char dire_name_relative = '\0';
 
-	if (path_name[0] == '/')
+	if (path_name[0] == '/') // check if beginning of path name contains a /
 	{
 		// ABS
 
@@ -561,7 +590,7 @@ void creat(char* path_name)
 
 	/* 1. Break up pathname into compoenets*/
 
-	if (path_name[0] == '/') // if first index contains /
+	if (path_name[0] == '/') // if the begging of the path name contains /
 	{
 		// ABSOLUTE pathname
 
@@ -571,7 +600,6 @@ void creat(char* path_name)
 			// increment through the pathname(string)
 			slash_count_base_name++;
 
-
 		}
 
 		// iterate path file to grab dire name
@@ -580,13 +608,14 @@ void creat(char* path_name)
 			slash_count_dire_name++;
 		}
 
-		//
+		// iterate to get base name
 		if (slash_count_base_name != 0)
 		{
 			// get the characters after 4th slash
 			basename = slash_count_base_name + 1;
 		}
 
+		// iterate to get dire name
 		if (slash_count_dire_name != 0)
 		{
 			direname = slash_count_dire_name;
@@ -616,12 +645,10 @@ void creat(char* path_name)
 	}
 
 
-	/* 2. Search for the direname node */
-
 
 	/* 2. Search for the direname node */
 
-	if (path_name[0] == '/')
+	if (path_name[0] == '/') // if the begging of the path name contains /
 	{
 		// ABS path
 
@@ -667,9 +694,10 @@ void creat(char* path_name)
 
 		}
 
-
+		// traverse the sibiling node
 		if (strcmp(root->parent->sibling, direname) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// dire name is a DIR type
@@ -689,25 +717,28 @@ void creat(char* path_name)
 				}
 				else
 				{
+					// name matches so file already exists
 					printf("DIR %s already exists!", path_name);
 				}
 
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
 		}
 
+		// traverse the child node
 		if (strcmp(root->parent->sibling->child, direname) == 0)
 		{
+			// check for DIR type
 			if (root->type)
 			{
 				// dire name is a DIR type
 				if (strcmp(basename, root->sibling->name))
 				{
-
 
 					// create a DIR node under dire name
 					// allocate memory for new file node
@@ -724,6 +755,7 @@ void creat(char* path_name)
 			}
 			else
 			{
+				// not a DIR type
 				printf("DIR %s already exists!", path_name);
 				return path_name;
 			}
@@ -758,8 +790,7 @@ void creat(char* path_name)
 			}
 		}
 
-		// check other nodes?
-		// cwd->parent
+		
 	}
 
 
@@ -785,7 +816,7 @@ void rm(char* path_name)
 	int slash_count_dire_name1 = '\0';
 	char dire_name_relative = '\0';
 
-	// does the path name start with a /
+	// check if the path name starts with a /
 	if (path_name[0] == '/')
 	{
 		// ABS path
@@ -850,12 +881,37 @@ void rm(char* path_name)
 		else
 		{
 			// Relative path
+
+			// traverse root of cwd
 			if (strcmp(cwd->name, root->type1) == 0)
 			{
+				// dellocate the node
 				free(cwd->name);
 			}
 
-			// if(strcmp())
+			// traverse parent node
+			if (strcmp(cwd->parent, root->type1) == 0)
+			{
+				// dellocate the node
+				free(cwd->parent);
+			}
+
+			// traverse child node
+			if (strcmp(cwd->parent->child, root->type1) == 0)
+			{
+				// dellocate the node
+				free(cwd->parent->child);
+			}
+
+			// traverse sibiling node
+			if (strcmp(cwd->parent->child->sibling, root->type1) == 0)
+			{
+				// dellocate the node
+				free(cwd->parent->child->sibling);
+			}
+
+
+
 		}
 	}
 }
@@ -1042,7 +1098,6 @@ void ls(char* path_name)
 }
 
 
-
 /*
 * Function: pwd_helper
 * Description: displays each component of the current working directory ex. /a/b/c/d -> a b c d
@@ -1152,6 +1207,7 @@ void reload(char file)
 		fscanf(fp, "%c", root->type);
 		fscanf(fp, "%s", pathname);
 
+		// print to console
 		printf("TYPE PATH\n");
 		printf("%c %s", root->type, pathname);
 	}
